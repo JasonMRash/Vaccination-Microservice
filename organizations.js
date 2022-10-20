@@ -32,6 +32,15 @@ router.get('/:id', function (req, res) {
             if (organization[0] === undefined || organization[0] === null) {
                 return res.status(404).json({ 'Error': 'No issue with this issue_id exists' });
             } else {
+                get_loads(req, req.params.id)
+                    .then (loads => {
+                        if (loads[0] === undefined || loads[0] === null) {
+
+                        }
+                        else {
+
+                        }
+                    })
                 return res.status(200).json(organization[0]);
             }
         });
