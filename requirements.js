@@ -18,7 +18,10 @@ async function get_requirement(req, id) {
     if (entity[0] === undefined || entity[0] === null) {
         return entity;
     } else {
-        return entity.map(ds.fromDatastore);
+        results = entity.map(ds.fromDatastore);
+        var self_url = '/requirements/' + results[0].id;
+        results[0].self = self_url;
+        return results;
     }
 }
 
@@ -41,7 +44,10 @@ async function get_organization(req, id) {
     if (entity[0] === undefined || entity[0] === null) {
         return entity;
     } else {
-        return entity.map(ds.fromDatastore);
+        results = entity.map(ds.fromDatastore);
+        var self_url = '/organizations/' + results[0].id;
+        results[0].self = self_url;
+        return results;
     }
 }
 

@@ -17,7 +17,10 @@ async function get_organization(req, id) {
     if (entity[0] === undefined || entity[0] === null) {
         return entity;
     } else {
-        return entity.map(ds.fromDatastore);
+        results = entity.map(ds.fromDatastore);
+        var self_url = '/organizations/' + results[0].id;
+        results[0].self = self_url;
+        return results;
     }
 }
 
@@ -77,17 +80,27 @@ async function remove_owner_from_requirement(requirement_id) {
 }
 
 async function assign_requirement_to_organization(organization_id, requirement_id) {
-    const organization = get_organization(req, organization_id);
-    const key = datastore.key([ORGANIZATION, parseInt(organization_id, 10)]);
-    const key2 = datastore.key([REQUIREMENT, parseInt(requirement_id, 10)]);
-    const requirement = get_requirement(req, requirement_id);
-    var update_organization =  {"name": organization.name, "initial_required": organization.initial_required,
-        "num_boosters": organization.num_boosters, 
-        "requirements": organization.requirements};
-    requirement.organization_id = organization_id;
-    update_organization.requirements.push(requirement);
-    return await datastore.save({"key": key, "data": update_organization}).then(datastore.save({"key": key2, "data": requirement}));
+    const keyOrg = datastore.key([ORGANIZATION, parseInt(organization_id, 10)]);
+    return datastore.get(keyOrg).then (async organization => {
+        const keyReq = datastore.key([REQUIREMENT, parseInt(requirement_id, 10)]);
+        return datastore.get(keyReq).then(requirement => {
+            var add_requirement = { "id": organization[0].id, "name": organization[0].name,
+                "initial_required": organization[0].initial_required, "num_boosters": organization[0].num_boosters, 
+                "requirements": organization[0].requirements, "self": organization[0].self_url };
+            add_requirement.requirements.push(requirement[0]);
+            return datastore.save({"key": keyOrg, "data": add_requirement});
+        })
+    })
+}
 
+async function assign_organization_to_requirement(organization_id, requirement_id) {
+    const keyReq = datastore.key([REQUIREMENT, parseInt(requirement_id, 10)]);
+    return datastore.get(keyReq).then(requirement => {
+        var add_organization_id = {"id": requirement[0].id, "category": requirement[0].category,
+            "days_max": requirement[0].days_max, "days_min": requirement[0].days_min,
+            "quantity": requirement[0].quantity, "type": requirement[0].type, "organization_id": organization_id, "self": requirement[0].self_url};
+        return datastore.save({"key": keyReq, "data": add_organization_id});
+    })
 }
 
 /* ------------- End Model Functions ------------- */
@@ -141,6 +154,7 @@ router.put('/:organization_id/requirements/:requirement_id', function (req, res)
                     res.status(404).json({'Error': 'No requirement with that requirement_id exists'});
                 }
                 else {
+                    await assign_organization_to_requirement(req.params.organization_id, req.params.requirement_id);
                     await assign_requirement_to_organization(req.params.organization_id, req.params.requirement_id).then(res.status(204).end());
                 }
             })
@@ -157,7 +171,14 @@ router.delete('/:id', function (req, res) {
         else
         {
             for (var i = 0; i< organization[0].requirements.length; i++) {
-                await remove_owner_from_requirement(organization[0].requirement[i].id);
+                get_requirement(req, organization[0].requirements[i].organization_id).then(async requirement => {
+                    if (requirement[0] === undefined || requirement[0] === null) {
+
+                    }
+                    else {
+                        await remove_owner_from_requirement(organization[0].requirements[i].organization_id);
+                    }
+                }) 
             }
             await delete_organization(req, req.params.id).then(res.status(204).end());
         }
