@@ -8,6 +8,10 @@
 | - | - | - |
 |1.0 |Initial version. |October 26, 2022 |
 
+## UML Sequence Diagram
+
+<img src ="https://github.com/JasonMRash/Vaccination-Microservice/blob/main/Sequence%20diagram.png" width = 60% height=60%>
+
 ## Data Model
 
 The app stores two kinds of entities in Datastore, Organizations and Requirements.
