@@ -92,6 +92,22 @@ async function remove_requirement_from_organization(organization_id, requirement
     });
 }
 
+async function remove_owner_from_requirement(requirement_id) {
+    const key = datastore.key([REQUIREMENT, parseInt(requirement_id, 10)]);
+    return datastore.get(key).then(async requirement => {
+        if (requirement[0] === undefined || requirement[0] === null) {
+            return requirement;
+        }
+        else {
+            var owner = null;
+            const remove_owner = {"category": requirement[0].category, "days_max": requirement[0].days_max,
+                "days_min": requirement[0].days_min, "quantity": requirement[0].quantity, "type": requirement[0].type, 
+                "organization_id": owner};
+            return await datastore.save({"key": key, "data": remove_owner});
+        }
+    });
+}
+
 async function delete_requirement(req, id) {
     const key = datastore.key([REQUIREMENT, parseInt(id, 10)]);
     return datastore.delete(key);
@@ -179,6 +195,7 @@ router.delete('/:requirement_id/organizations/:organization_id', function (req, 
                         else {
                             if (organization[0].requirements[i].id == req.params.requirement_id) {
                                 await remove_requirement_from_organization(req.params.organization_id, req.params.requirement_id);
+                                await remove_owner_from_requirement(req.params.requirement_id);
                                 res.status(204).end();
                             }
                         }
