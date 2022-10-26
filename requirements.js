@@ -166,13 +166,24 @@ router.delete('/:requirement_id/organizations/:organization_id', function (req, 
         if (organization[0] === undefined || organization[0] === null) {
             res.status(404).json({'Error': 'No organization with this organization ID exists'});
         } else {
-            get_requirement(req, req.params.id)
+            get_requirement(req, req.params.requirement_id)
             .then(async requirement => {
                 if (requirement[0] === undefined || requirement[0] === null) {
                     res.status(404).json({'Error': 'No requirement with this requirement ID exists'});
                 } else {
-                    await remove_requirement_from_organization(req.params.organization_id, req.params.requirement_id);
-                    res.status(204).end();
+                    for (var i = 0; i < organization[0].requirements.length; i++)
+                    {
+                        if (organization[0].requirements[i] === undefined || organization[0].requirements[i] === null) {
+
+                        }
+                        else {
+                            if (organization[0].requirements[i].id == req.params.requirement_id) {
+                                await remove_requirement_from_organization(req.params.organization_id, req.params.requirement_id);
+                                res.status(204).end();
+                            }
+                        }
+                    }
+                    res.status(404).json({'Error': 'Requirement is not associated with this organization'});
                 }
             });
         }
