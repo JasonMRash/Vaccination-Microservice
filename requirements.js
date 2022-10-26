@@ -84,7 +84,7 @@ async function remove_requirement_from_organization(organization_id, requirement
                 if (organization[0].requirements[i].id == requirement_id) {
                     organization[0].requirements.splice(i, 1);
                     const update_organization = {"name": organization[0].name, "initial_required": organization[0].initial_required, 
-                        "num_boosters": organization[0].num_boosters, "requirement": organization[0].requirement};
+                        "num_boosters": organization[0].num_boosters, "requirements": organization[0].requirements, "self": organization[0].self};
                     await datastore.save({"key": key, "data": update_organization});
                 }
             }
@@ -142,10 +142,15 @@ router.delete('/:id', function (req, res) {
             res.status(404).json({'Error': 'No requirement with this requirement ID exists'});
         } else {
             get_organizations(req).then (async organizations => {
-                for (var i = 0; i < organizations[0].organizations.length; i++) {
-                    for (var j = 0; j < organizations[0].organizations[i].requirements.length; j++) {
-                        if (organizations[0].organizations[i].requirements[j].id == req.params.id) {
-                            await remove_requirement_from_organization(organizations[0].organizations[i].id, req.params.id);
+                for (var i = 0; i < organizations.organizations.length; i++) {
+                    for (var j = 0; j < organizations.organizations[i].requirements.length; j++) {
+                        if (organizations.organizations[i].requirements[j] === undefined || organizations.organizations[i].requirements[j] === null) {
+
+                        }
+                        else {
+                            if (organizations.organizations[i].requirements[j].id == req.params.id) {
+                                await remove_requirement_from_organization(organizations.organizations[i].id, req.params.id);
+                            }
                         }
                     }
                 }

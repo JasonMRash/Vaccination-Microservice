@@ -84,10 +84,13 @@ async function assign_requirement_to_organization(organization_id, requirement_i
     return datastore.get(keyOrg).then (async organization => {
         const keyReq = datastore.key([REQUIREMENT, parseInt(requirement_id, 10)]);
         return datastore.get(keyReq).then(requirement => {
+            var results = requirement.map(ds.fromDatastore);
+            var self_url = '/requirements/' + results[0].id;
+            results[0].self = self_url;
             var add_requirement = { "id": organization[0].id, "name": organization[0].name,
                 "initial_required": organization[0].initial_required, "num_boosters": organization[0].num_boosters, 
                 "requirements": organization[0].requirements, "self": organization[0].self_url };
-            add_requirement.requirements.push(requirement[0]);
+            add_requirement.requirements.push(results[0]);
             return datastore.save({"key": keyOrg, "data": add_requirement});
         })
     })
@@ -126,6 +129,17 @@ router.get('/', function (req, res) {
         res.status(200).json(organizations);
     });
 });
+
+router.get('/:id/requirements', function (req, res) {
+    get_organization(req, req.params.id)
+        .then(organization => {
+            if (organization[0] === undefined || organization[0] === null) {
+                return res.status(404).json({ 'Error': 'No organization with this organization ID exists' });
+            } else {
+                return res.status(200).json({'requirements': organization[0].requirements});
+            }
+        });
+})
 
 // POST organizations/
 router.post('/', function (req, res) {
