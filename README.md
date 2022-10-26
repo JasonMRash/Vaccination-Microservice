@@ -10,7 +10,7 @@
 
 ## UML Sequence Diagram
 
-<img src ="https://github.com/JasonMRash/Vaccination-Microservice/blob/main/Sequence%20diagram.png" width = 60% height=60%>
+<img src ="https://github.com/JasonMRash/Vaccination-Microservice/blob/main/Sequence%20diagram.jpeg">
 
 ## Data Model
 
