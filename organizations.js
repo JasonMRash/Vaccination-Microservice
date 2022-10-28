@@ -160,16 +160,23 @@ router.post('/', function (req, res) {
 router.put('/:organization_id/requirements/:requirement_id', function (req, res) {
     get_organization(req, req.params.organization_id).then( async organization => {
         if (organization[0] === undefined || organization[0] === null) {
-            res.status(404).json({'Error': 'No organization with that organization_id exists.'});
+            res.status(404).json({'Error': 'The specified organization and/or requirement does not exist.'});
         }
         else {
             get_requirement(req, req.params.requirement_id).then (async requirement => {
                 if (requirement[0] === undefined || requirement[0] === null) {
-                    res.status(404).json({'Error': 'No requirement with that requirement_id exists'});
+                    res.status(404).json({'Error': 'The specified organization and/or requirement does not exist.'});
                 }
                 else {
-                    await assign_organization_to_requirement(req.params.organization_id, req.params.requirement_id);
+                    if (requirement[0].organization_id != null)
+                    {
+                        res.status(403).json({'Forbidden': 'Requirement is already linked to a different organization.'})
+                    }
+                    else
+                    {
+                        await assign_organization_to_requirement(req.params.organization_id, req.params.requirement_id);
                     await assign_requirement_to_organization(req.params.organization_id, req.params.requirement_id).then(res.status(204).end());
+                    }
                 }
             })
         }
