@@ -567,6 +567,7 @@ Failure: JSON
 |**Outcome** |**Status Code** |**Notes** |
 | - | - | - |
 |Success |204 No Content |Succeeds only if an organization with this organization\_id exists, and a requirement exists with this requirement\_id. |
+|Failure |403 Forbidden | Requirement is already linked to a different organization. |
 |Failure |404 Not Found |The specified organization and/or requirement does not exist. |
 
 #### Response Examples
@@ -576,6 +577,14 @@ _Success_
 Status: 204 No Content
 
 _Failure_
+
+Status: 403 Forbidden
+
+```
+{
+  'Forbidden': 'Requirement is already linked to a different organization.'
+}
+```
 
 Status: 404 Not Found
 
