@@ -14,7 +14,7 @@
 
 ## Data Model
 
-The app stores two kinds of entities in Datastore, Organizations and Requirements.
+The API stores two kinds of entities in Datastore, Organizations and Requirements.
 
 ### Organization
 
